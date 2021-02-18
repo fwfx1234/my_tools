@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_tools/router/routers.dart';
 
 void main() {
   runApp(MyApp());
@@ -22,22 +23,12 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.pink,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      initialRoute: '/',
+      routes: routes,
       builder: (BuildContext context, Widget child) {
-        print(child);
         return Overlay(initialEntries: [
           OverlayEntry(builder: (BuildContext ctx) => child),
-          OverlayEntry(builder: (BuildContext ctx) => Positioned(
-            top: 0,
-            left: 0,
-            child: Container(
-              constraints: BoxConstraints(
-                maxWidth: 100.0,
-                maxHeight: 200.0
-              ),
-              color: Colors.blue,
-            ),
-          )),
+          OverlayEntry(builder: (BuildContext ctx) => Container()),
         ],);
       },
     );
