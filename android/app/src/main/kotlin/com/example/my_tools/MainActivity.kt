@@ -17,8 +17,8 @@ class MainActivity : FlutterActivity() {
             if (call.method == "startActivity") {
                 try {
                     val activityName = call.arguments<List<String>>()
-                    Log.d(TAG, "configureFlutterEngine: $activityName")
                     val intent = Intent(this, Class.forName("com.example.my_tools.${activityName[0]}"))
+                    intent.putExtra("url", activityName[1])
                     startActivity(intent)
                     result.success("ok" + activityName[0])
                 } catch (e: Exception) {

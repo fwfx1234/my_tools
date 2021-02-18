@@ -19,10 +19,9 @@ public class WebViewActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_web_view);
         webView =  findViewById(R.id.webview);
-        webView.loadUrl("https://www.baidu.com");
-
+        String url = getIntent().getExtras().getString("url","https://www.baidu.com");
+        webView.loadUrl(url);
         webView.setWebContentsDebuggingEnabled(true);
-
         WebSettings settings = webView.getSettings();
         settings.setJavaScriptEnabled(true);
         settings.setAllowContentAccess(true);
