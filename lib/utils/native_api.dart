@@ -1,7 +1,7 @@
 import 'package:flutter/services.dart';
 
 class NativeApi {
-  static var _activityChannel = 'com.example.my_tools/activity';
+  static const _activityChannel = 'com.example.my_tools/activity';
 
   static Future<String> startBrowser({String url = 'https://www.baidu.com'}) async{
     var platform =  new MethodChannel(_activityChannel);

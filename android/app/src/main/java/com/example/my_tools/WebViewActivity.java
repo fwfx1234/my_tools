@@ -27,7 +27,6 @@ public class WebViewActivity extends AppCompatActivity {
         settings.setAllowContentAccess(true);
         settings.setAllowFileAccess(true);
         settings.setDomStorageEnabled(true);
-
         webView.setWebChromeClient(new MyChromeClient());
         webView.setWebViewClient(new MyWebViewClient());
     }

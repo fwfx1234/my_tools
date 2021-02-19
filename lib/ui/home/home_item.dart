@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:my_tools/utils/NativeApi.dart';
+import 'package:my_tools/router/routers.dart';
 
 class HomeItem extends StatelessWidget {
   final Image image;
@@ -14,8 +13,10 @@ class HomeItem extends StatelessWidget {
     return InkWell(
       onTap: () async {
         try{
-          String result = await NativeApi.startBrowser(url: "www.google.com");
-          print(result);
+          // String result = await NativeApi.startBrowser(url: "www.google.com");
+
+          // print(result);
+          Navigator.of(context).push2("/browser");
         }catch(e) {
           print(e);
         }
