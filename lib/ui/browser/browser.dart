@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:video_player/video_player.dart';
@@ -14,45 +15,101 @@ class BrowserPage extends StatefulWidget {
 }
 
 class _BrowserPageState extends State<BrowserPage> {
-  final VideoPlayerController _videoPlayerController = VideoPlayerController.network("");
+
   final Completer<WebViewController> _controller = Completer();
   final TextEditingController _textEditingController = TextEditingController();
+  VideoPlayerController _videoPlayerController;
+  ChewieController chewieController;
   bool isLoading = false;
-
+  bool isShowVideoPlayer = false;
   @override
   void initState() {
     super.initState();
     if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
     _textEditingController.text = 'https://';
   }
+  getVideo() async {
+    var c = await _controller.future;
+    c.evaluateJavascript(
+        'let video = document.querySelector("video");'
+            'if (video) {'
+            'FlutterUrl.postMessage(video.src)'
+            '}'
+    );
+  }
+  JavascriptChannel _getVideoUrl(BuildContext context){
 
-  JavascriptChannel _getVideoUrl(BuildContext context) {
     return JavascriptChannel(
         name: 'FlutterUrl',
         onMessageReceived: (JavascriptMessage message) {
           // ignore: deprecated_member_use
           print('-----------------value-------------------');
-          print(message.message);
+          print('value' + message.message);
+          if (message.message != null) {
+            init(message.message);
+          }
           print('-----------------value-------------------');
         });
   }
 
-  Widget _videoPlayer() {
-    return Container(
-      height: 400.0,
-      padding: const EdgeInsets.all(20),
-      child: AspectRatio(
-        aspectRatio: _videoPlayerController.value.aspectRatio,
-        child: Stack(
-          alignment: Alignment.bottomCenter,
-          children: <Widget>[
-            VideoPlayer(_videoPlayerController),
-            ClosedCaption(text: _videoPlayerController.value.caption.text),
-            VideoProgressIndicator(_videoPlayerController, allowScrubbing: true),
-          ],
-        ),
-      ),
+  @override
+  void dispose() {
+    if (_videoPlayerController !=null) {
+      _videoPlayerController.dispose();
+    }
+    if (chewieController !=null) {
+      chewieController.dispose();
+    }
+  }
+
+  init(String url) async {
+    print('init');
+    isShowVideoPlayer = false;
+
+    if (_videoPlayerController !=null) {
+      _videoPlayerController.dispose();
+    }
+    if (chewieController !=null) {
+      chewieController.dispose();
+    }
+    _videoPlayerController = VideoPlayerController.network(url);
+    await _videoPlayerController.initialize();
+    print('init success');
+    chewieController = ChewieController(
+      videoPlayerController: _videoPlayerController,
+      autoPlay: true,
+      looping: true,
     );
+    setState(() {
+      isShowVideoPlayer = true;
+    });
+  }
+  Widget _videoPlayer() {
+    return Positioned(
+        top: 0.0,
+        left: 0.0,
+        child: Builder(builder: (context){
+              return Container(
+                  constraints: BoxConstraints(
+                      maxWidth: MediaQuery.of(context).size.width,
+                     maxHeight: 300.0
+                  ),
+                  padding: const EdgeInsets.all(20),
+                  child: Stack(
+                    alignment: Alignment.bottomCenter,
+                    children: <Widget>[
+                      isShowVideoPlayer ?
+                      Chewie(
+                        controller: chewieController,
+                      ) : Text('Loading'),
+                      TextButton(onPressed: ()async{
+
+                      }, child: Text("play", style: TextStyle(color: Colors.blue),))
+                    ],
+                  )
+              );
+
+            }) ) ;
   }
 
   @override
@@ -71,10 +128,11 @@ class _BrowserPageState extends State<BrowserPage> {
               OverlayEntry(builder: (context) =>
                   Column(
                     children: [
+                      isShowVideoPlayer ? _videoPlayer() : Container(),
                       Expanded(
                         child: WebView(
                           debuggingEnabled: true,
-                          initialUrl: "https://www.baidu.com",
+                          initialUrl: "https://m.bilibili.com/",
                           javascriptMode: JavascriptMode.unrestricted,
                           javascriptChannels: <JavascriptChannel>[
                             _getVideoUrl(context),
@@ -97,8 +155,7 @@ class _BrowserPageState extends State<BrowserPage> {
                           },
                           onPageFinished: (String url) {
                             _controller.future.then((c) {
-                              c.evaluateJavascript(
-                                  'FlutterUrl.postMessage(document.querySelector("video").src)');
+
                             });
                             setState(() {
                               isLoading = false;
@@ -120,13 +177,9 @@ class _BrowserPageState extends State<BrowserPage> {
                                   controller: _textEditingController,
                                 )),
                             ElevatedButton(
-                                onPressed: () {
-                                  _controller.future.then((c) {
-                                    c
-                                        .evaluateJavascript(
-                                        'document.querySelector(\'video\').src')
-                                        .then((value) => print(value));
-                                  });
+                                onPressed: ()async {
+                                  var c = await _controller.future;
+                                  c.loadUrl(_textEditingController.text);
                                 },
                                 child: Text("search")),
                             ElevatedButton(
@@ -135,13 +188,17 @@ class _BrowserPageState extends State<BrowserPage> {
                                     c.reload();
                                   });
                                 },
-                                child: Text("reload"))
+                                child: Text("reload")),
+                            ElevatedButton(
+                                onPressed: () {
+                                 getVideo();
+                                },
+                                child: Text("v"))
                           ],
                         ),
                       )
                     ],
                   )),
-              OverlayEntry(builder: (context) => _videoPlayer())
             ],)));
   }
 }
