@@ -1,47 +1,40 @@
 import 'package:flutter/material.dart';
-import 'package:my_tools/router/routers.dart';
+import 'package:flutter_screenutil/size_extension.dart';
 
 class HomeItem extends StatelessWidget {
   final Image image;
   final String title;
   final String content;
-
-  HomeItem({@required this.image, @required this.title, this.content = '默认描述'});
+  final void Function() onTap;
+  HomeItem({@required this.image, @required this.title, this.content = '默认描述', this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () async {
-        try{
-          // String result = await NativeApi.startBrowser(url: "www.google.com");
-
-          // print(result);
-          Navigator.of(context).push2("/browser");
-        }catch(e) {
-          print(e);
-        }
+      onTap: () {
+        this?.onTap();
       },
       child: Card(
           shadowColor: Colors.black12,
           child: Container(
-            padding: EdgeInsets.all(10.0),
+            padding: EdgeInsets.all(10.0.w),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  width: 48.0,
-                  height: 48.0,
+                  width: 36.0.w,
+                  height: 36.0.w,
                   child: image,
                 ),
                 Text(
                   title,
-                  style: TextStyle(fontSize: 16.0, color: Colors.black87),
+                  style: TextStyle(fontSize: 14.0.w, color: Colors.black87),
                 ),
                 Text(
                   content,
                   style: TextStyle(
-                      fontSize: 14.0,
+                      fontSize: 12.0.w,
                       fontWeight: FontWeight.w400,
                       color: Colors.black38),
                 )

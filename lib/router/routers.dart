@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:my_tools/ui/browser/browser.dart';
 import 'package:my_tools/ui/home/home.dart';
+import 'package:my_tools/ui/tomato/tomato.dart';
 
 final Map<String, WidgetBuilder> routes = <String, WidgetBuilder>{
   '/': (content) => HomePage(),
-  '/browser': (context) => BrowserPage()
+  '/browser': (context) => BrowserPage(),
+  '/tomato': (context) => TomatoPage(),
 };
 
 Route _createRoute(Widget widget) {
@@ -26,7 +28,7 @@ Route _createRoute(Widget widget) {
 }
 
 extension NavigatorExtension on NavigatorState {
-  push2(String name) {
+  pushByUrl(String name) {
     var builder = routes[name];
     this.push(_createRoute(builder(this.context)));
   }
