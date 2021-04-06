@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_tools/router/annotation.dart';
 import 'package:my_tools/ui/browser/browser.dart';
 import 'package:my_tools/ui/home/home.dart';
 import 'package:my_tools/ui/tomato/tomato.dart';
@@ -32,4 +33,9 @@ extension NavigatorExtension on NavigatorState {
     var builder = routes[name];
     this.push(_createRoute(builder(this.context)));
   }
+}
+
+@MyRouteRoot()
+class RouterRoot {
+  RouterRoot();
 }
