@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/screenutil_init.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:my_tools/router/routers.dart';
-import 'package:my_tools/utils/screen_utils.dart';
 
 void main() {
   runApp(MyApp());
@@ -28,11 +27,11 @@ class MyApp extends StatelessWidget {
           primarySwatch: Colors.pink,
         ),
         initialRoute: '/',
-        routes: routes,
-        builder: (BuildContext context, Widget child) {
+        onGenerateRoute: MyRouter.onGenerateRoute,
+        builder: (BuildContext context, Widget? child) {
           return Overlay(
             initialEntries: [
-              OverlayEntry(builder: (BuildContext ctx) => child),
+              OverlayEntry(builder: (BuildContext ctx) => child ?? Container()),
               OverlayEntry(builder: (BuildContext ctx) => Container()),
             ],
           );

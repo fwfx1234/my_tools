@@ -1,22 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/size_extension.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ListItem extends StatelessWidget {
   final String title;
   final Icon icon;
-  final String time;
-  final int times;
+  final String? time;
+  final int? times;
+  final void Function() ? onTap;
 
-  ListItem({@required this.icon, @required this.title, this.time, this.times})
-      : assert(icon != null, "icon != null"),
-        assert(title != null, "title !=null");
+  ListItem({required this.icon, required this.title, this.time, this.times, this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       splashColor: Colors.black.withOpacity(0.1),
       highlightColor: Colors.white,
-      onTap: () {},
+      onTap: () {
+        if (this.onTap != null) {
+          this.onTap!();
+        }
+      },
       child: Container(
         height: 55.0.w,
         padding: EdgeInsets.only(left: 10.0.w, right: 10.0.w),

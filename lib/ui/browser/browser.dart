@@ -1,9 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-import 'package:flutter_screenutil/size_extension.dart';
 
 class BrowserPage extends StatefulWidget {
   @override
@@ -13,6 +11,7 @@ class BrowserPage extends StatefulWidget {
 }
 
 class _BrowserPageState extends State<BrowserPage> {
+  // IjkMediaController controller = IjkMediaController();
   final Completer<WebViewController> _controller = Completer();
   final TextEditingController _textEditingController = TextEditingController();
   bool isLoading = false;
@@ -23,24 +22,54 @@ class _BrowserPageState extends State<BrowserPage> {
     super.initState();
     if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
     _textEditingController.text = 'https://';
+    this.getVideo();
+  }
+
+  @override
+  void didUpdateWidget(BrowserPage oldWidget) {
+    debugPrint("didUpdateWidget");
+  }
+
+  @override
+  void deactivate() {
+    // controller.dispose();
   }
 
   getVideo() async {
-    var c = await _controller.future;
-    c.evaluateJavascript('let video = document.querySelector("video");'
-        'if (video) {'
-        'FlutterUrl.postMessage(video.src)'
-        '}');
+    // var c = await _controller.future;
+    debugPrint("getVideo");
+    // controller.pauseOtherController();
+    // controller.setNetworkDataSource("https://upos-sz-mirrorcos.bilivideo.com/upgcxcode/76/37/335023776/335023776_nb2-1-16.mp4?e=ig8euxZM2rNcNbdlhoNvNC8BqJIzNbfq9rVEuxTEnE8L5F6VnEsSTx0vkX8fqJeYTj_lta53NCM=&uipk=5&nbs=1&deadline=1620388963&gen=playurlv2&os=cosbv&oi=3664411466&trid=38bd3546b29e4a70ae710e757197c761h&platform=html5&upsig=f09359b1eacf02658d7f01fa1722f546&uparams=e,uipk,nbs,deadline,gen,os,oi,trid,platform&mid=0&logo=80000000",
+    //     headers: {
+    //       'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1'
+    //     },
+    //     autoPlay: true);
+    // c.evaluateJavascript(
+    //     'let video = document.querySelector("video");'
+    //     'if (video) {'
+    //     'FlutterUrl.postMessage(video.src)'
+    //     '}');
   }
-
+  Widget t() {
+    return  AndroidView(viewType: "viewType");
+  }
   JavascriptChannel _getVideoUrl(BuildContext context) {
     return JavascriptChannel(
         name: 'FlutterUrl',
         onMessageReceived: (JavascriptMessage message) {
           // ignore: deprecated_member_use
           print('-----------------value-------------------');
-          print('value' + message.message);
-          if (message.message != null) {}
+          print('_getVideoUrl' + message.message);
+          if (message.message != null) {
+            // if (controller.isPlaying) {
+            //   return;
+            // }
+            // controller.setNetworkDataSource(message.message,
+            //     headers: {
+            //       'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1'
+            //     },
+            //     autoPlay: true);
+          }
           print('-----------------value-------------------');
         });
   }
@@ -63,77 +92,43 @@ class _BrowserPageState extends State<BrowserPage> {
             }
             return true;
           },
-          child: Overlay(
-            initialEntries: [
-              OverlayEntry(
-                  builder: (context) => Column(
-                        children: [
-                          Expanded(
-                            child: WebView(
-                              debuggingEnabled: true,
-                              initialUrl: "https://m.bilibili.com/",
-                              javascriptMode: JavascriptMode.unrestricted,
-                              javascriptChannels: <JavascriptChannel>[
-                                _getVideoUrl(context),
-                              ].toSet(),
-                              onWebViewCreated: (WebViewController controller) {
-                                _controller.complete(controller);
-                              },
-                              navigationDelegate: (NavigationRequest request) {
-                                if (!request.url.startsWith('http')) {
-                                  print('blocking navigation to $request}');
-                                  return NavigationDecision.prevent;
-                                }
-                                print('allowing navigation to $request');
-                                return NavigationDecision.navigate;
-                              },
-                              onPageStarted: (String url) {
-                                setState(() {
-                                  isLoading = true;
-                                });
-                              },
-                              onPageFinished: (String url) {
-                                _controller.future.then((c) {});
-                                setState(() {
-                                  isLoading = false;
-                                });
-                              },
-                            ),
-                          ),
-                          Container(
-                            height: 60.0.w,
-                            padding:
-                                EdgeInsets.only(right: 10.0.w, left: 10.0.w),
-                            child: Row(
-                              children: [
-                                isLoading
-                                    ? Icon(Icons.all_inclusive_sharp)
-                                    : Container(),
-                                Expanded(
-                                    child: TextField(
-                                  keyboardType: TextInputType.url,
-                                  controller: _textEditingController,
-                                )),
-                                ElevatedButton(
-                                    onPressed: () async {
-                                      var c = await _controller.future;
-                                      c.loadUrl(_textEditingController.text);
-                                    },
-                                    child: Text("search")),
-                                ElevatedButton(
-                                    onPressed: () {
-                                      _controller.future.then((c) {
-                                        c.reload();
-                                      });
-                                    },
-                                    child: Text("reload")),
-                              ],
-                            ),
-                          )
-                        ],
-                      )),
-            ],
-          )),
+          child: RefreshIndicator(
+            onRefresh: () async{
+              var c = await _controller.future;
+              c.reload();
+              return;
+            },
+            child: WebView(
+              debuggingEnabled: true,
+              initialUrl: "https://m.baidu.com/",
+              javascriptMode: JavascriptMode.unrestricted,
+              javascriptChannels: <JavascriptChannel>[
+                _getVideoUrl(context),
+              ].toSet(),
+              onWebViewCreated: (WebViewController controller) {
+                _controller.complete(controller);
+              },
+              navigationDelegate: (NavigationRequest request) {
+                if (!request.url.startsWith('http')) {
+                  print('blocking navigation to $request}');
+                  return NavigationDecision.prevent;
+                }
+                print('allowing navigation to $request');
+                return NavigationDecision.navigate;
+              },
+              onPageStarted: (String url) {
+                setState(() {
+                  isLoading = true;
+                });
+              },
+              onPageFinished: (String url) {
+                _controller.future.then((c) {});
+                setState(() {
+                  isLoading = false;
+                });
+              },
+            ),
+          ),),
     ));
   }
 }

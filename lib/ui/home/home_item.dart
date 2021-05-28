@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/size_extension.dart';
-
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 class HomeItem extends StatelessWidget {
   final Image image;
   final String title;
   final String content;
-  final void Function() onTap;
-  HomeItem({@required this.image, @required this.title, this.content = '默认描述', this.onTap});
+  final void Function()? onTap;
+  HomeItem({required this.image, required this.title, this.content = '默认描述', this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        this?.onTap();
+        if (this.onTap != null) {
+          this.onTap!();
+        }
       },
       child: Card(
           shadowColor: Colors.black12,

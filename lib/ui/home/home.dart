@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:my_tools/ui/home/home_item.dart';
-import 'package:my_tools/router/routers.dart';
-import 'package:flutter_screenutil/size_extension.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -27,7 +26,7 @@ class _HomePageState extends State<HomePage> {
                     title: "浏览器",
                     content: "还没完善",
                     onTap: () {
-                      Navigator.of(context).pushByUrl("/browser");
+                      Navigator.of(context).pushNamed("/browser");
                     },
                   ),
                   HomeItem(
@@ -35,9 +34,9 @@ class _HomePageState extends State<HomePage> {
                     title: "小番茄",
                     content: "用于计划学习的",
                     onTap: () {
-                      Navigator.of(context).pushByUrl("/tomato");
+                      Navigator.of(context).pushNamed("/tomato");
                     },
-                  )
+                  ),
                 ],
               ))),
     );

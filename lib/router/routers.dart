@@ -1,41 +1,57 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:my_tools/router/annotation.dart';
 import 'package:my_tools/ui/browser/browser.dart';
 import 'package:my_tools/ui/home/home.dart';
 import 'package:my_tools/ui/tomato/tomato.dart';
+import 'package:my_tools/ui/webview/webview.dart';
 
-final Map<String, WidgetBuilder> routes = <String, WidgetBuilder>{
-  '/': (content) => HomePage(),
-  '/browser': (context) => BrowserPage(),
-  '/tomato': (context) => TomatoPage(),
-};
+class MyRouter {
+  static final List<String> _needAuthRoute = ['/user_center', '/coupon'];
 
-Route _createRoute(Widget widget) {
-  return PageRouteBuilder(
-    pageBuilder: (context, animation, secondaryAnimation) => widget,
-    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      var begin = Offset(1.0, 0.0);
-      var end = Offset.zero;
-      var curve = Curves.ease;
-
-      var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-
-      return SlideTransition(
-        position: animation.drive(tween),
-        child: child,
+  static Map<String, Widget Function(BuildContext, {Object? argument})>
+      _routers = {
+    "/": (context, {Object? argument}) => HomePage(),
+    '/browser': (context, {Object? argument}) => BrowserPage(),
+    '/tomato': (context, {Object? argument}) => TomatoPage(),
+    '/webview': (context, {Object? argument}) {
+      var params = argument as Map;
+      String url = params['url'] ?? '';
+      assert(!url.startsWith('http'), "url 不合法");
+      bool isShowNavBar = params['isShowNavBar'];
+      return WebViewPage(
+        url: url,
+        isShowNavBar: isShowNavBar,
       );
-    },
-  );
-}
+    }
+  };
 
-extension NavigatorExtension on NavigatorState {
-  pushByUrl(String name) {
-    var builder = routes[name];
-    this.push(_createRoute(builder(this.context)));
+  static Future<bool> _isNeedLogin(
+      BuildContext context, String routeName) async {
+    if (!_needAuthRoute.contains(routeName)) {
+      return false;
+    }
+    return false;
   }
-}
 
-@MyRouteRoot()
-class RouterRoot {
-  RouterRoot();
+  static Route<dynamic> onGenerateRoute(RouteSettings settings) {
+    return CupertinoPageRoute(builder: (context) {
+      String? routeName = settings.name;
+      if (routeName == null) {
+        return HomePage();
+      }
+      return _routers[routeName]!(context, argument: settings.arguments);
+    });
+  }
+
+  static Future<bool?> pushNamed(BuildContext context, String routeName,
+      {Object? arguments}) async {
+    if (await _isNeedLogin(context, routeName)) {
+      await Navigator.pushNamed(context, '/login',
+          arguments: {'routeName': routeName, 'arguments': arguments});
+      return false;
+    } else {
+      await Navigator.pushNamed(context, routeName, arguments: arguments);
+      return true;
+    }
+  }
 }
