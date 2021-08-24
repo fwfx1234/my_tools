@@ -37,6 +37,14 @@ class _HomePageState extends State<HomePage> {
                       Navigator.of(context).pushNamed("/tomato");
                     },
                   ),
+                  HomeItem(
+                    image: Image.asset("lib/assets/tomato.png"),
+                    title: "Demo",
+                    content: "联系demo的地方",
+                    onTap: () {
+                      Navigator.of(context).pushNamed("/demo");
+                    },
+                  ),
                 ],
               ))),
     );

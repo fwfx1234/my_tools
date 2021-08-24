@@ -25,10 +25,6 @@ class _BrowserPageState extends State<BrowserPage> {
     this.getVideo();
   }
 
-  @override
-  void didUpdateWidget(BrowserPage oldWidget) {
-    debugPrint("didUpdateWidget");
-  }
 
   @override
   void deactivate() {

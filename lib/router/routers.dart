@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:my_tools/ui/browser/browser.dart';
+import 'package:my_tools/ui/demo/demo.dart';
 import 'package:my_tools/ui/home/home.dart';
 import 'package:my_tools/ui/tomato/tomato.dart';
 import 'package:my_tools/ui/webview/webview.dart';
@@ -22,7 +23,8 @@ class MyRouter {
         url: url,
         isShowNavBar: isShowNavBar,
       );
-    }
+    },
+    '/demo': (context, {Object? argument}) => DemoPage()
   };
 
   static Future<bool> _isNeedLogin(
