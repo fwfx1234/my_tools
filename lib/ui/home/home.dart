@@ -30,9 +30,9 @@ class _HomePageState extends State<HomePage> {
                     },
                   ),
                   HomeItem(
-                    image: Image.asset("lib/assets/tomato.png"),
-                    title: "小番茄",
-                    content: "用于计划学习的",
+                    image: Image.asset("lib/assets/juan.gif"),
+                    title: "字节面试题",
+                    content: "用来卷的",
                     onTap: () {
                       Navigator.of(context).pushNamed("/tomato");
                     },
@@ -40,7 +40,7 @@ class _HomePageState extends State<HomePage> {
                   HomeItem(
                     image: Image.asset("lib/assets/tomato.png"),
                     title: "Demo",
-                    content: "联系demo的地方",
+                    content: "写demo的地方",
                     onTap: () {
                       Navigator.of(context).pushNamed("/demo");
                     },

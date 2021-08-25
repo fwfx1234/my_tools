@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:intl/intl.dart';
+import 'package:my_tools/db/knowledge.dart';
 
 class ListItem extends StatelessWidget {
-  final String title;
-  final Icon icon;
-  final String? time;
-  final int? times;
+  final Knowledge item;
   final void Function() ? onTap;
-
-  ListItem({required this.icon, required this.title, this.time, this.times, this.onTap});
+  final void Function(int id)? onLongPress;
+  ListItem({required this.item, this.onTap, this.onLongPress});
 
   @override
   Widget build(BuildContext context) {
@@ -18,6 +17,11 @@ class ListItem extends StatelessWidget {
       onTap: () {
         if (this.onTap != null) {
           this.onTap!();
+        }
+      },
+      onLongPress: () {
+        if (this.onLongPress != null) {
+          this.onLongPress!(item.id!);
         }
       },
       child: Container(
@@ -31,10 +35,10 @@ class ListItem extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                icon,
+                item.isRead ? Icon(Icons.article_rounded, color: Colors.green,)  : Icon(Icons.article_outlined, color: Colors.grey,),
                 Padding(
                   padding: EdgeInsets.only(left: 5.0.w),
-                  child: Text(title),
+                  child: Text('${item.id}: ${item.title}'),
                 )
               ],
             ),
@@ -42,19 +46,7 @@ class ListItem extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.end,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                this.time != null
-                    ? Text(
-                        "${time}h",
-                        style: TextStyle(color: Colors.black26),
-                      )
-                    : Container(),
-                this.times != null
-                    ? Padding(
-                        padding: EdgeInsets.only(left: 10.0.w),
-                        child: Text(times.toString(),
-                            style: TextStyle(color: Colors.black26)),
-                      )
-                    : Container()
+                item.updateTime != null && item.isRead ? Text(DateFormat('yyyy-MM-dd').format(item.updateTime!)) : Container()
               ],
             )
           ],

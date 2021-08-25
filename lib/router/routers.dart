@@ -8,6 +8,7 @@ import 'package:my_tools/ui/webview/webview.dart';
 
 class MyRouter {
   static final List<String> _needAuthRoute = ['/user_center', '/coupon'];
+  static final RouteObserver routeObserver = RouteObserver();
 
   static Map<String, Widget Function(BuildContext, {Object? argument})>
       _routers = {

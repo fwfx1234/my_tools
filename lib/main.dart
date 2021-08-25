@@ -27,6 +27,7 @@ class MyApp extends StatelessWidget {
           primarySwatch: Colors.pink,
         ),
         initialRoute: '/',
+        navigatorObservers: [MyRouter.routeObserver],
         onGenerateRoute: MyRouter.onGenerateRoute,
         builder: (BuildContext context, Widget? child) {
           return Overlay(

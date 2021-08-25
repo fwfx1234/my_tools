@@ -1,68 +1,135 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:my_tools/api/api_knowledge.dart';
 import 'package:sqflite/sqflite.dart';
+
 const String tb = 'tb_knowledge';
+
 class Knowledge {
-  int? id;
   late final String url;
   late final String title;
   late final String type;
   late final String module;
+  int? id;
+  bool isRead = false;
+  DateTime? updateTime;
+
   Knowledge(this.url, this.title, this.type, this.module);
 
   Map<String, Object?> toMap() {
     var map = <String, Object?>{
-      'id': id,
       'url': url,
       'title': title,
       'type': type,
-      'module': module
+      'module': module,
+      'is_read': isRead ? 1 : 0,
+      'update_time': updateTime?.microsecondsSinceEpoch
     };
     return map;
   }
 
   Knowledge.fromMap(Map<String, Object?> map) {
-    this.id = map['id'] as int? ?? 0;
+    if (map.containsKey('id') && map['id'] != 'Null') {
+      this.id = map['id'] as int;
+    }
     this.url = map['url'] as String? ?? '';
     this.title = map['title'] as String? ?? '';
     this.type = map['type'] as String? ?? '';
     this.module = map['module'] as String? ?? '';
+    this.isRead = map['is_read'] == 1;
+    if (map.containsKey('update_time') && map['update_time'] != null) {
+      this.updateTime =
+          DateTime.fromMicrosecondsSinceEpoch(map['update_time'] as int);
+    }
   }
 }
 
 class KnowledgeProvider {
-  Database? db;
-  Future open(String path) async {
-    db = await openDatabase(path, version: 1,
-        onCreate: (Database db, int version) async {
-          await db.execute('''
-        create table $tb ( 
-        id integer autoincrement, 
-        url text not null primary key,
-        title text not null,
-        type text not null,
-        module text not null
-        )
-        ''');
-        });
-    ApiKnowledge.getKnowledgeList().then((value) => {
-      value.forEach((element) {
-        insert(Knowledge(element.url, element.title, element.type, element.module));
-      })
-    });
+  KnowledgeProvider() {
+    getDatabasesPath().then((value) => open(value));
   }
-  
+  Completer<Database> _handle = Completer();
+  Future open(String path) async {
+    var dbPath = '$path/knowledge.db';
+    var db = await openDatabase(dbPath, version: 1,
+        onCreate: (Database db, int version) async {
+      await db.execute('''
+            create table $tb (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              url text not null UNIQUE,
+              title char(50) not null,
+              type char(10) not null,
+              module char(10) not null,
+              is_read int  default 0,
+              update_time int 
+            )
+            ''');
+      await _initDataFromLocal(db);
+    });
+    _handle.complete(db);
+  }
+
+  Future _initDataFromLocal(Database db) async {
+    var initData = await ApiKnowledge.getKnowledgeList();
+    await Future.wait(initData.map((element) => db.insert(
+        tb,
+        Knowledge(element.url, element.title, element.type, element.module)
+            .toMap())));
+  }
+
   Future<Knowledge> insert(Knowledge item) async {
-    if (db == null) {
-      return Future.error("db 未初始化: $tb");
-    }
-    await db?.insert(tb, item.toMap());
+    var db = await _handle.future;
+    await db.insert(tb, item.toMap());
     return item;
   }
-  Future<List<Knowledge>> getAll() async {
-    if (db == null) {
-      return Future.error("db 未初始化: $tb");
-    }
-    var _list = await db!.query(tb);
-    return _list.map((e) => Knowledge.fromMap(e)).toList();
+
+  Future<int> setReadState(int id, bool isRead) async {
+    var db = await _handle.future;
+
+    return await db.update(
+        tb,
+        {
+          'is_read': isRead ? 1 : 0,
+          'update_time': DateTime.now().microsecondsSinceEpoch
+        },
+        where: 'id = ? ',
+        whereArgs: [id]);
   }
+
+  Future<List<String>> getAllType() async {
+    var db = await _handle.future;
+
+    var _list = await db.rawQuery("select type from $tb group by type");
+    return _list.map((e) => e['type']! as String).toList();
+  }
+
+  Future<List<String>> getAllModule() async {
+    var db = await _handle.future;
+
+    var res = await db.rawQuery("select module from $tb group by module");
+    return res.map((e) => e['module']! as String).toList();
+  }
+
+  Future<List<Knowledge>> getAll() async {
+    var db = await _handle.future;
+
+    var _list = await db.query(tb);
+    return _list
+        .map((e) => Knowledge.fromMap(e))
+        .skipWhile((e) => e.url.startsWith('http'))
+        .toList();
+  }
+  Future<List<Knowledge>> getListByModule(String module) async {
+    var db = await _handle.future;
+
+    var _list = await db.query(tb, where: "module = ?", whereArgs: [module]);
+    return _list
+        .map((e) => Knowledge.fromMap(e))
+        .skipWhile((e) => e.url.startsWith('http'))
+        .toList();
+  }
+
+  Future close() async => await _handle.future
+    ..close();
 }

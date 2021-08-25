@@ -32,6 +32,7 @@ dependencies:
   json_annotation: ^4.0.1
   provider: ^5.0.0
   sqflite: ^2.0.0+3
+  intl: ^0.17.0
 
 dev_dependencies:
   flutter_test:
@@ -52,6 +53,8 @@ flutter:
   assets:
      - lib/assets/chrome.png
      - lib/assets/tomato.png
+     - - lib/assets/juan.gif
+
      - lib/assets/data/main.csv
   #   - images/a_dot_ham.jpeg
 
