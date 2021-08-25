@@ -30,7 +30,7 @@ class _HomePageState extends State<HomePage> {
                     },
                   ),
                   HomeItem(
-                    image: Image.asset("lib/assets/juan.gif"),
+                    image: Image.asset("lib/assets/juan.png"),
                     title: "字节面试题",
                     content: "用来卷的",
                     onTap: () {

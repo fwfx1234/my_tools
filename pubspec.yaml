@@ -53,7 +53,7 @@ flutter:
   assets:
      - lib/assets/chrome.png
      - lib/assets/tomato.png
-     - - lib/assets/juan.gif
+     - - lib/assets/juan.png
 
      - lib/assets/data/main.csv
   #   - images/a_dot_ham.jpeg
