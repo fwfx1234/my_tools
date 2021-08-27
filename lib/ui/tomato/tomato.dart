@@ -17,6 +17,9 @@ class _TomatoPageState extends State<TomatoPage>
     with RouteAware, TickerProviderStateMixin {
   List<List<Knowledge>> _list = [];
   List<String> _tabs = [];
+  int? _readArticleId;
+  DateTime? _readTime;
+  bool _bottomSheetIsOpened = false;
   var _knowledgeProvider = KnowledgeProvider();
 
   late TabController _tabController;
@@ -57,11 +60,10 @@ class _TomatoPageState extends State<TomatoPage>
       return res;
     }
   }
-  _updateListByIndex(int index) async{
-   await Future.wait([
-      _getListByModule(index, true),
-      _getListByModule(0, true)
-    ]);
+
+  _updateListByIndex(int index) async {
+    await Future.wait(
+        [_getListByModule(index, true), _getListByModule(0, true)]);
     setState(() {});
   }
 
@@ -73,7 +75,14 @@ class _TomatoPageState extends State<TomatoPage>
 
   @override
   void didPopNext() {
-    print('didPopNext');
+    // 超过一分钟自动已读
+    if (_readTime != null &&
+        _readArticleId != null &&
+        DateTime.now().second - _readTime!.second > 30 &&
+        !_bottomSheetIsOpened) {
+      _knowledgeProvider.setReadState(_readArticleId!, true);
+      _updateListByIndex(_tabController.index);
+    }
     super.didPopNext();
   }
 
@@ -90,10 +99,12 @@ class _TomatoPageState extends State<TomatoPage>
             .map((e) => ListItem(
                 item: e,
                 onTap: () {
+                  _readArticleId = e.id;
+                  _readTime = DateTime.now();
                   gotoBrowser(context, e.url);
                 },
                 onLongPress: (id) {
-                  print(id);
+                  _bottomSheetIsOpened = true;
                   showModalBottomSheet(
                       context: context,
                       builder: (_) => Container(
@@ -106,6 +117,7 @@ class _TomatoPageState extends State<TomatoPage>
                                         id, true);
                                     _updateListByIndex(_tabController.index);
                                     Navigator.pop(context);
+                                    _bottomSheetIsOpened = false;
                                   },
                                   child: Container(
                                     height: 60.0,
@@ -121,6 +133,7 @@ class _TomatoPageState extends State<TomatoPage>
                                     await _knowledgeProvider.setReadState(
                                         id, false);
                                     _updateListByIndex(_tabController.index);
+                                    _bottomSheetIsOpened = false;
                                     Navigator.pop(context);
                                   },
                                   child: Container(
