@@ -78,6 +78,7 @@ class _BrowserPageState extends State<BrowserPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(title: Text(""),),
         body: SafeArea(
       child: WillPopScope(
           onWillPop: () async {
@@ -96,7 +97,7 @@ class _BrowserPageState extends State<BrowserPage> {
             },
             child: WebView(
               debuggingEnabled: true,
-              initialUrl: "https://m.baidu.com/",
+              initialUrl: "https://blog.csdn.net/Charissa2017/article/details/104779412",
               javascriptMode: JavascriptMode.unrestricted,
               javascriptChannels: <JavascriptChannel>[
                 _getVideoUrl(context),
